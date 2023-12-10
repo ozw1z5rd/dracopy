@@ -12,8 +12,10 @@
 
 # C64 256K memory expansion
 #REU=c64-c256k.emd
+
 # Berkeley Softworks GeoRam
-#REU=c64-georam.emd
+REU=c64-georam.emd
+
 # RamCart 64/128
 #REU=c64-ramcart.emd
 # CBM REU
@@ -29,9 +31,9 @@
 ##############################################################################
 # building
 
-VER=1.3doj
+VER=1.3hcg
 
-CFLAGS+=-I include -O -Or -Os -r -D DRA_VERNUM=\"$(VER)\" -D DRA_VERDATE=\"2022-05-07\"
+CFLAGS+=-I include -O -Or -Os -r -D DRA_VERNUM=\"$(VER)\" -D DRA_VERDATE=\"2023-12-10\"
 
 ifneq ($(REU),)
 C64CFLAGS+=-DREU=\"$(REU)\"
@@ -39,52 +41,40 @@ endif
 
 C64CFLAGS+=$(CFLAGS)
 
-D64=dracopy-$(VER).d64
+D64=dracopy-$(VER).${TYPE}
 TARGETS_C64=dc64 db64 dc6480 db6480 dc64ieee dc64ieee80 dc128 db128 dc1280 db1280
 TARGETS=$(TARGETS_C64) dcp4 dbp4 dc510 db510 dc610 db610 dcpet80 dbpet80 dcpet40 dbpet40
 
 all:	$(TARGETS) $(D64)
 
+#### sh d64.sh 'dracopy $(VER),FB' $(D64) $(REU) dc64 db64 dc128 db128 dc1280 db1280 dcp4 dbp4
+
 $(D64):	$(TARGETS) $(REU)
-	sh d64.sh 'dracopy $(VER),dj' $(D64) $(REU) dc64 db64 dc6480 dc128 db128 dc1280 db1280 dcp4 dbp4
+	sh d64.sh 'dracopy $(VER),FB' $(D64) $(REU) dc64 db64 dc1280 db1280 dcp4 dbp4
 
 COMMON_SRC=src/screen.c src/cat.c src/dir.c src/base.c src/ops.c
 DC_SRC=src/dc.c $(COMMON_SRC)
 
 dc64:	$(DC_SRC)
-	cl65 $(C64CFLAGS) -t c64 -m $@.map $^ -o $@.prg
-	#pucrunch -c64 $@.prg $@
-	exomizer sfx systrim -o $@ $@.prg
+	cl65 $(C64CFLAGS) -t c64 -m $@.map $^ -o $@
 
 dc6480:	$(DC_SRC)
-	cl65 $(C64CFLAGS) -DCHAR80 -t c64 -m $@.map $^ c64-soft80.o -o $@.prg
-	#pucrunch -c64 $@.prg $@
-	exomizer sfx systrim -o $@ $@.prg
+	cl65 $(C64CFLAGS) -DCHAR80 -t c64 -m $@.map $^ c64-soft80.o -o $@
 
 dc64ieee:	$(DC_SRC)
-	cl65 $(C64CFLAGS) -DSFD1001 -t c64 -C dc64ieee.cfg -m $@.map $^ -o $@.prg
-	#pucrunch -c64 $@.prg $@
-	exomizer sfx systrim -o $@ $@.prg
+	cl65 $(C64CFLAGS) -DSFD1001 -t c64 -C dc64ieee.cfg -m $@.map $^ -o $@
 
 dc64ieee80:	$(DC_SRC)
-	cl65 $(C64CFLAGS) -DSFD1001 -DCHAR80 -t c64 -C dc64ieee.cfg -m $@.map $^ c64-soft80.o -o $@.prg
-	#pucrunch -c64 $@.prg $@
-	exomizer sfx systrim -o $@ $@.prg
+	cl65 $(C64CFLAGS) -DSFD1001 -DCHAR80 -t c64 -C dc64ieee.cfg -m $@.map $^ c64-soft80.o -o $@
 
 dc128:	$(DC_SRC)
-	cl65 $(CFLAGS) -t c128 $^ -o $@.prg
-	#pucrunch -fc128 $@.prg $@
-	exomizer sfx systrim -t 128 -o $@ $@.prg
+	cl65 $(CFLAGS) -t c128 $^ -o $@
 
 dc1280:	$(DC_SRC)
-	cl65 $(CFLAGS) -t c128 -DCHAR80 $^ -o $@.prg
-	#pucrunch -fc128 $@.prg $@
-	exomizer sfx systrim -t 128 -o $@ $@.prg
+	cl65 $(CFLAGS) -t c128 -DCHAR80 $^ -o $@
 
 dcp4:	$(DC_SRC)
-	cl65 $(CFLAGS) -t plus4 $^ -o $@.prg
-	#pucrunch -fc16 $@.prg $@
-	exomizer sfx systrim -t 4 -o $@ $@.prg
+	cl65 $(CFLAGS) -t plus4 $^ -o $@
 
 dc510:	$(DC_SRC)
 	cl65 $(CFLAGS) -t cbm510 -DSFD1001 $^ -o $@
@@ -93,41 +83,27 @@ dc610:	$(DC_SRC)
 	cl65 $(CFLAGS) -t cbm610 -DSFD1001 -DCHAR80 $^ -o $@
 
 dcpet40:	$(DC_SRC)
-	cl65 $(CFLAGS) -t pet -DSFD1001 $^ -o $@.prg
-	cp $@.prg $@
-	#exomizer sfx systrim -t 4032 -o $@ $@.prg
+	cl65 $(CFLAGS) -t pet -DSFD1001 $^ -o $@
 
 dcpet80:	$(DC_SRC)
-	cl65 $(CFLAGS) -t pet -DSFD1001 -DCHAR80 $^ -o $@.prg
-	cp $@.prg $@
-	#exomizer sfx systrim -t 4032 -o $@ $@.prg
+	cl65 $(CFLAGS) -t pet -DSFD1001 -DCHAR80 $^ -o $@
 
 DB_SRC=src/db.c $(COMMON_SRC)
 
 db64:	$(DB_SRC)
-	cl65 $(C64CFLAGS) -t c64 $^ -o $@.prg
-	#pucrunch -c64 $@.prg $@
-	exomizer sfx systrim -o $@ $@.prg
+	cl65 $(C64CFLAGS) -t c64 $^ -o $@
 
 db6480:	$(DB_SRC)
-	cl65 $(C64CFLAGS) -DCHAR80 -t c64 -m $@.map $^ c64-soft80.o -o $@.prg
-	#pucrunch -c64 $@.prg $@
-	exomizer sfx systrim -o $@ $@.prg
+	cl65 $(C64CFLAGS) -DCHAR80 -t c64 -m $@.map $^ c64-soft80.o -o $@
 
 db128:	$(DB_SRC)
-	cl65 $(CFLAGS) -t c128 $^ -o $@.prg
-	#pucrunch -fc128 $@.prg $@
-	exomizer sfx systrim -t 128 -o $@ $@.prg
+	cl65 $(CFLAGS) -t c128 $^ -o $@
 
 db1280:	$(DB_SRC)
-	cl65 $(CFLAGS) -t c128 -DCHAR80 $^ -o $@.prg
-	#pucrunch -fc128 $@.prg $@
-	exomizer sfx systrim -t 128 -o $@ $@.prg
+	cl65 $(CFLAGS) -t c128 -DCHAR80 $^ -o $@
 
 dbp4:	$(DB_SRC)
-	cl65 $(CFLAGS) -t plus4 $^ -o $@.prg
-	#pucrunch -fc16 $@.prg $@
-	exomizer sfx systrim -t 4 -o $@ $@.prg
+	cl65 $(CFLAGS) -t plus4 $^ -o $@
 
 db510:	$(DB_SRC)
 	cl65 $(CFLAGS) -t cbm510 -DSFD1001 $^ -o $@
@@ -136,14 +112,10 @@ db610:	$(DB_SRC)
 	cl65 $(CFLAGS) -t cbm610 -DSFD1001 -DCHAR80 $^ -o $@
 
 dbpet40:	$(DB_SRC)
-	cl65 $(CFLAGS) -t pet -DSFD1001 $^ -o $@.prg
-	cp $@.prg $@
-	#exomizer sfx systrim -t 4032 -o $@ $@.prg
+	cl65 $(CFLAGS) -t pet -DSFD1001 $^ -o $@
 
 dbpet80:	$(DB_SRC)
-	cl65 $(CFLAGS) -t pet -DSFD1001 -DCHAR80 $^ -o $@.prg
-	cp $@.prg $@
-	#exomizer sfx systrim -t 4032 -o $@ $@.prg
+	cl65 $(CFLAGS) -t pet -DSFD1001 -DCHAR80 $^ -o $@
 
 clean:
 	$(RM) -rf d src/*.o src/*.s *.prg *.map *.seq *.d64 *.d71 *.d8[012] $(TARGETS) *.zip *.emd

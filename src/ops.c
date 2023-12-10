@@ -312,8 +312,8 @@ static const char* helpcontent[] = {
   "\xfc", "chg dev id", // CH_POUND
   "", "",
 #if defined(REU) || defined(KERBEROS)
-  "z", "load to REU",
-  "x", "save fr REU",
+  "z", "load to GEO",
+  "x", "save fr GEO",
 #else
   "", "",
   "", "",

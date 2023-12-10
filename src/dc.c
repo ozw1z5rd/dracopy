@@ -239,7 +239,7 @@ mainLoop(void)
             gotoxy(REUMENUX,BOTTOM);
             if (cachedFileSize)
               textcolor(DC_COLOR_HIGHLIGHT);
-            cprintf("REU:%lu/%lu", cachedFileSize/1024ul, em_pagecount()*256ul/1024ul);
+            cprintf("GEO:%lu/%lu", cachedFileSize/1024ul, em_pagecount()*256ul/1024ul);
             textcolor(DC_COLOR_TEXT);
           }
 #endif
@@ -1142,7 +1142,7 @@ diskCopyTitle(const BYTE optimized, const BYTE yesno, const BYTE use_reu, const 
 #if defined(REU)
   if (use_reu)
     {
-      sprintf(linebuffer, "%s diskcopy from REU to %i? (Y/N)",
+      sprintf(linebuffer, "%s diskcopy from GEO to %i? (Y/N)",
               optimized ? optimized_str : "",
               deviceTo);
     }
@@ -2047,7 +2047,7 @@ readFile(const BYTE context)
   if (cwd->selected == NULL)
     return;
   strcpy(cachedFileName, cwd->selected->dirent.name);
-  sprintf(linebuffer, "read %s into REU", cachedFileName);
+  sprintf(linebuffer, "read %s into GEO", cachedFileName);
   newscreen(linebuffer);
   i = strlen(cachedFileName);
   cachedFileName[i] = ',';
@@ -2081,7 +2081,7 @@ readFile(const BYTE context)
       void *p = em_use(page++);
       if (page > em_pagecount())
         {
-          cputs("REU too small\n\r");
+          cputs("GEO too small\n\r");
           goto error;
         }
       if (! p)
@@ -2135,7 +2135,7 @@ writeFile(const BYTE context)
   if (i < 3)
     return 0;
 
-  sprintf(linebuffer, "write %s from REU to %i", cachedFileName, device);
+  sprintf(linebuffer, "write %s from GEO to %i", cachedFileName, device);
   newscreen(linebuffer);
 
   i = cbm_open(device, device, CBM_WRITE, cachedFileName);
